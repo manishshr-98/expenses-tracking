@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.3/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #B3C9D9, #F5F8FB);
+            transition: background-color 0.3s ease;
+        }
+
+        .dark-mode {
+            background-color: #121212;
+            color: white;
+        }
+
+        .light-mode {
+            background-color: #F5F8FB;
+            color: black;
+        }
+
+        .navbar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 200px;
+            background-color: #3498db;
+            color: white;
+            height: 100vh;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #2980b9;
+            color: white;
+            text-align: left;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .navbar button:hover {
+            background-color: #21618c;
+        }
+
+        .content {
+            margin-left: 220px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .card-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .graph-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-container input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .form-container button:hover {
+            background-color: #2980b9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: red;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background-color: darkred;
+        }
+
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .tab-content.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        #search-bar {
+            padding: 12px;
+            width: 100%;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .filter-buttons {
+            display: none;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .filter-buttons button {
+            padding: 10px 15px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .filter-buttons button:hover {
+            background-color: #5a6268;
+        }
+
+        .filter-buttons.show {
+            display: flex;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                margin-left: 0;
+            }
+
+            .navbar {
+                width: 100%;
+                position: relative;
+                height: auto;
+                padding: 10px;
+            }
+
+            .navbar button {
+                width: auto;
+                margin-bottom: 5px;
+            }
+
+            .card-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .graph-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body class="light-mode">
+
+    <!-- Left Side Navigation -->
+    <div class="navbar">
+        <button onclick="showTab('dashboard')">Dashboard</button>
+        <button onclick="showTab('data-entry')">Data Entry</button>
+        <button onclick="showTab('data-showing')">Data Showing</button>
+    </div>
+
+    <div class="content">
+        <button id="dark-mode-toggle" class="absolute top-5 right-5 text-xl">🌙</button>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content show">
+            <h2 class="text-3xl text-center font-semibold mb-6">Dashboard</h2>
+            <div class="card-container">
+                <div class="card p-5 bg-white shadow-lg rounded-lg">
+                    <h3 class="text-xl font-semibold">Total Expenses</h3>
+                    <p id="total-expenses" class="text-2xl">₨ 0</p>
+                    <a href="javascript:void(0);" onclick="showTab('data-entry')" class="btn">Enter New Expense</a>
+                </div>
+                <div class="card p-5 bg-white shadow-lg rounded-lg col-span-2">
+                    <h3 class="text-xl font-semibold mb-4">Expenses Over Time</h3>
+                    <canvas id="expense-line-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Entry Tab -->
+        <div id="data-entry" class="tab-content">
+            <h2 class="text-3xl text-center font-semibold mb-6">Enter Expense</h2>
+            <div class="form-container">
+                <form id="expense-form">
+                    <input type="date" id="expense-date" required />
+                    <input type="text" id="expense-category" placeholder="Category" required />
+                    <input type="text" id="expense-description" placeholder="Description" required />
+                    <input type="number" id="expense-amount" placeholder="Amount (in NPR)" required />
+                    <button type="submit">Add Expense</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Data Showing Tab -->
+        <div id="data-showing" class="tab-content">
+            <h2 class="text-3xl text-center font-semibold mb-6">All Expenses</h2>
+            <input type="text" id="search-bar" placeholder="Search..." class="p-2 border rounded mb-4 w-full">
+
+            <!-- Date Filters -->
+            <div class="filter-buttons" id="date-filters">
+                <button onclick="filterExpenses('day')">Today</button>
+                <button onclick="filterExpenses('week')">This Week</button>
+                <button onclick="filterExpenses('month')">This Month</button>
+                <button onclick="filterExpenses('year')">This Year</button>
+            </div>
+
+            <div class="table-container">
+                <table id="expense-showing-table" class="table-auto w-full">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expense-showing-table-body">
+                        <!-- Data rows will be dynamically populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Toggle Dark Mode
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        darkModeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            document.body.classList.toggle('light-mode');
+            darkModeToggle.innerHTML = document.body.classList.contains('dark-mode') ? '🌞' : '🌙';
+        });
+
+        // Function to show the selected tab
+        function showTab(tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('show'));
+
+            const activeTab = document.getElementById(tabId);
+            activeTab.classList.add('show');
+        }
+
+        let expenses = [
+            { date: '2024-12-01', category: 'Food', description: 'Lunch', amount: 500 },
+            { date: '2024-12-02', category: 'Transport', description: 'Taxi', amount: 150 },
+            { date: '2024-12-05', category: 'Entertainment', description: 'Movies', amount: 300 },
+        ];
+
+        // Add new expense
+        document.getElementById('expense-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const date = document.getElementById('expense-date').value;
+            const category = document.getElementById('expense-category').value;
+            const description = document.getElementById('expense-description').value;
+            const amount = document.getElementById('expense-amount').value;
+
+            expenses.push({ date, category, description, amount });
+            showTab('data-showing');
+            populateExpenseTable();
+            updateDashboard();
+        });
+
+        // Populate expense table
+        function populateExpenseTable() {
+            const tableBody = document.getElementById('expense-showing-table-body');
+            tableBody.innerHTML = '';
+            expenses.forEach((expense, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${expense.date}</td>
+                    <td>${expense.category}</td>
+                    <td>${expense.description}</td>
+                    <td>₨ ${expense.amount}</td>
+                    <td><button class="delete-btn" onclick="deleteExpense(${index})">Delete</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Delete expense
+        function deleteExpense(index) {
+            expenses.splice(index, 1);
+            populateExpenseTable();
+            updateDashboard();
+        }
+
+        // Update total expenses on dashboard
+        function updateDashboard() {
+            const totalExpenses = expenses.reduce((total, expense) => total + parseFloat(expense.amount), 0);
+            document.getElementById('total-expenses').innerText = `₨ ${totalExpenses}`;
+        }
+
+        // Filter expenses by date range
+        function filterExpenses(range) {
+            const today = new Date();
+            let filteredExpenses = [];
+            switch (range) {
+                case 'day':
+                    filteredExpenses = expenses.filter(expense => new Date(expense.date).toDateString() === today.toDateString());
+                    break;
+                case 'week':
+                    const weekStart = today.setDate(today.getDate() - today.getDay());
+                    const weekEnd = new Date(today.setDate(today.getDate() + 6));
+                    filteredExpenses = expenses.filter(expense => new Date(expense.date) >= weekStart && new Date(expense.date) <= weekEnd);
+                    break;
+                case 'month':
+                    filteredExpenses = expenses.filter(expense => new Date(expense.date).getMonth() === today.getMonth());
+                    break;
+                case 'year':
+                    filteredExpenses = expenses.filter(expense => new Date(expense.date).getFullYear() === today.getFullYear());
+                    break;
+            }
+            expenses = filteredExpenses;
+            populateExpenseTable();
+        }
+
+        // Create line chart for expenses over time
+        const ctx = document.getElementById('expense-line-chart').getContext('2d');
+        const expenseLineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: expenses.map(expense => expense.date),
+                datasets: [{
+                    label: 'Expenses',
+                    data: expenses.map(expense => expense.amount),
+                    borderColor: '#3498db',
+                    fill: false,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: 'category',
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            beginAtZero: true
+                        },
+                        title: {
+                            display: true,
+                            text: 'Amount (NPR)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Initialize
+        updateDashboard();
+    </script>
+
+</body>
+
+</html>
